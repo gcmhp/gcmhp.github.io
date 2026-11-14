@@ -13,7 +13,6 @@ var map = L.map('map', {
 L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
   attribution: "© OpenStreetMap Contributors"
 }).addTo(map);
-
 // Create a layer for our markers to be placed on.
 var allMarkers = L.layerGroup().addTo(map);
 
