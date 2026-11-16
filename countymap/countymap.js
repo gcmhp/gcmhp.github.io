@@ -1,3 +1,23 @@
+//
+//
+// SETTINGS
+//
+//
+
+/*
+ * This is the max zoom level you can zoom into the map.
+ * It should be noted that this does NOT mean that we require data to have this much detail. Data will be dynamically
+ * loaded up to their maximum zoom values, and then we will lossily zoom in further until we reach this level.
+ * 22 appears to be a nice value, anything more zoomed in doesn't really gain anything useful.
+ */
+let maxZoomSetting = 22;
+
+//
+//
+// Load the CSV file that has info on our maps. Nothing can progress until we have this info.
+//
+//
+
 let cityYearMap = {};
 const control = document.getElementById("controlCheckbox");
 
@@ -14,14 +34,26 @@ fetch('../assets/maps/map_context.csv')
           const city = row.Area.trim();
           const year = row.Year.trim();
           const fileLink = row['File/Link'].trim();
+          // Explicit type casting is required here - I don't know why.
+          // Somehow without this it specifically crashed only the Advanced mode - not Simple mode.
+          const zoom = Number(row.MaxZoom.trim());
+
+          // Prevent adding incomplete data.
+          if (!city || !year || !fileLink || !zoom) {
+              console.warn("Skipping invalid CSV row:", row);
+              return;
+          }
 
           // Initialize the city object if it doesn't exist yet
           if (!cityYearMap[city]) {
             cityYearMap[city] = {};
           }
 
-          // Assign the file link.
-          cityYearMap[city][year] = fileLink;
+          cityYearMap[city][year] = {};
+
+          // Assign the file data.
+          cityYearMap[city][year]["link"] = fileLink;
+          cityYearMap[city][year]["zoom"] = zoom;
         });
       }
     });
@@ -35,7 +67,7 @@ fetch('../assets/maps/map_context.csv')
 var map = L.map('map', {
   center: [43.01903661271984, -83.68866637835121],
   zoom: 15,
-  maxZoom: 22
+  maxZoom: maxZoomSetting
 });
 
 //
@@ -172,7 +204,7 @@ function setupDraggable() {
    * Take data about a certain city and year, creating a box in the appropriate bucket.
    */
   function createLayerTile(options) {
-    const { id, city, year = '', file = '', displayName } = options;
+    const { id, city, year = '', file = '', zoom = '', displayName } = options;
 
     // Create the base element for the entry. Attach some basic metadata.
     const box = document.createElement('div');
@@ -181,6 +213,7 @@ function setupDraggable() {
     box.dataset.city = city;
     box.dataset.year = year;
     box.dataset.file = file;
+    box.dataset.zoom = zoom;
     box.dataset.opacity = '100';
 
     // On the left hand side of the box...
@@ -250,7 +283,7 @@ function setupDraggable() {
       } else {
         commonDisplayBucket.appendChild(box);
         syncTileState(box);
-        updateDisplayData(box.dataset.file, "add", box.dataset.id);
+        updateDisplayData(box.dataset.file, "add", box.dataset.id, box.dataset.zoom);
       }
     });
 
@@ -320,11 +353,12 @@ function setupDraggable() {
 
   // Create everything else from our provided data.
   Object.entries(cityYearMap).forEach(([cityName, yearsObj]) => {
-    const cityItems = Object.entries(yearsObj).map(([year, fileName]) => ({
+    const cityItems = Object.entries(yearsObj).map(([year, yearData]) => ({
       id: `${cityName.toLowerCase()}_${year}`,
       city: cityName,
       year: year,
-      file: fileName || '',
+      file: yearData?.link || '',
+      zoom: yearData?.zoom || '',
       displayName: `${cityName} (${year})`
     }));
 
@@ -342,7 +376,7 @@ function setupDraggable() {
    * This is actually much simpler than the "simple" control method because maps are verbosely added and removed,
    * meaning that we don't have to build a smart cache system to add and remove content!
    */
-  function updateDisplayData(data, task, item) {
+  function updateDisplayData(data, task, item, zoom) {
     // Depending on which task is being performed...
     // Note: Task is always a string, but does not have to be present. Attached are its options:
     // add - We are adding a layer to the display.
@@ -358,7 +392,9 @@ function setupDraggable() {
           case "street_map":
             let streetMapLayer = L.tileLayer(
               'https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-              attribution: "© OpenStreetMap Contributors"
+              attribution: "© OpenStreetMap Contributors",
+              maxNativeZoom: 19,
+              maxZoom: maxZoomSetting
             }).addTo(map);
             advancedLayerCache.push({id: item, layer: streetMapLayer});
             streetMapLayer.bringToBack();
@@ -367,7 +403,9 @@ function setupDraggable() {
           case "satellite":
             let satelliteLayer = L.tileLayer(
               'https://imagery.michigan.gov/server/rest/services/Michigan_imagery_public/MapServer/tile/{z}/{y}/{x}', {
-              attribution: "© State of Michigan, Department of Technology, Management & Budget (DTMB), Center for Shared Solutions — MiSAIL aerial imagery."
+              attribution: "© State of Michigan, Department of Technology, Management & Budget (DTMB), Center for Shared Solutions — MiSAIL aerial imagery.",
+              maxNativeZoom: 19,
+              maxZoom: maxZoomSetting
             }).addTo(map);
             advancedLayerCache.push({id: item, layer: satelliteLayer});
             satelliteLayer.bringToBack();
@@ -375,7 +413,10 @@ function setupDraggable() {
           // Otherwise, load the appropriate file from the system!
           default:
             const p = new pmtiles.PMTiles("../assets/maps/" + data);
-            let addedLayer = pmtiles.leafletRasterLayer(p, {}).addTo(map);
+            let addedLayer = pmtiles.leafletRasterLayer(p, {
+              maxNativeZoom: Number(zoom),
+              maxZoom: maxZoomSetting
+            }).addTo(map);
             advancedLayerCache.push({id: item, layer: addedLayer});
             addedLayer.bringToBack();
             break;
@@ -459,7 +500,9 @@ async function loadSimple() {
         map.removeLayer(layer);
       });
       L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-          attribution: "© OpenStreetMap Contributors"
+          attribution: "© OpenStreetMap Contributors",
+          maxNativeZoom: 19,
+          maxZoom: maxZoomSetting
         }).addTo(map);
 
       // Finally, update the map.
@@ -510,14 +553,19 @@ function simpleMapUpdate() {
   // Check County first
   // Cities have more detail than county, so we'll place them on top.
   if (cityYearMap.County) {
-    const countyFile = getClosestFile(cityYearMap.County);
-    // If there exists an appropriate county image...
+    const countyData = getClosestFile(cityYearMap.County);
+    const countyFile = countyData?.link;
+    const countyZoom = Number(countyData?.zoom);
+
     if (countyFile) {
       // If the map has changed (prevent duplicate loadings, reduce bandwidth consumption)...
-      if (!simpleCache["County"] || simpleCache["County"] != countyFile) {
+      if (!simpleCache["County"] || simpleCache["County"] !== countyFile) {
         // Load the new map onto a layer.
         const p = new pmtiles.PMTiles("../assets/maps/" + countyFile);
-        let layer = pmtiles.leafletRasterLayer(p, {}).addTo(map);
+        let layer = pmtiles.leafletRasterLayer(p, {
+          maxNativeZoom: Number(countyZoom),
+          maxZoom: maxZoomSetting
+        }).addTo(map);
 
         // If a previous county map was used, we need to remove it.
         if (simpleLayerCache["County"]) {
@@ -540,14 +588,20 @@ function simpleMapUpdate() {
   for (const area of Object.keys(cityYearMap)) {
     if (area === 'County') continue;
 
-    const cityFile = getClosestFile(cityYearMap[area]);
+    const cityData = getClosestFile(cityYearMap[area]);
+    const cityFile = cityData?.link;
+    const cityZoom = Number(cityData?.zoom);
+
     // If there exists an appropriate city map...
     if (cityFile) {
       // If the map has changed (prevent duplicate loadings, reduce bandwidth consumption)...
-      if (!simpleCache[area] || simpleCache[area] != cityFile) {
+      if (!simpleCache[area] || simpleCache[area] !== cityFile) {
         // Load the new map onto a layer.
         const p = new pmtiles.PMTiles("../assets/maps/" + cityFile);
-        let layer = pmtiles.leafletRasterLayer(p, {}).addTo(map);
+        let layer = pmtiles.leafletRasterLayer(p, {
+          maxNativeZoom: Number(cityZoom),
+          maxZoom: maxZoomSetting
+        }).addTo(map);
 
         // If a previous city map was used, we need to remove it.
         if (simpleLayerCache[area]) {
