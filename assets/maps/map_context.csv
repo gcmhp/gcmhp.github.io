@@ -1,6 +1,61 @@
-Area,Year,File/Link
-Flint,1873,flint_1873_20.pmtiles
-Flint,1886,flint_1886_22.pmtiles
-Flint,1902,flint_1902_22.pmtiles
-Flint,1909,flint_1909_22.pmtiles
-Flint,1914,flint_1914_22.pmtiles
+Area,Year,File/Link,MaxZoom
+Clio,1873,clio_1873_20.pmtiles,20
+Clio,1902,clio_1902_22.pmtiles,22
+Clio,1910,clio_1910_22.pmtiles,22
+Davison,1873,davison_1873_20.pmtiles,20
+Davison,1902,davison_1902_22.pmtiles,22
+Davison,1910,davison_1910_22.pmtiles,22
+Davison,1921,davison_1921_22.pmtiles,22
+Davison,1939,davison_1939_22.pmtiles,22
+Farrandville,1859,farrandville_1859_20.pmtiles,20
+Farrandville,1873,farrandville_1873_20.pmtiles,20
+Fenton,1859,fenton_1859_20.pmtiles,20
+Fenton,1873,fenton_1873_20.pmtiles,20
+Fenton,1884,fenton_1884_22.pmtiles,22
+Fenton,1890,fenton_1890_22.pmtiles,22
+Fenton,1895,fenton_1895_22.pmtiles,22
+Fenton,1901,fenton_1901_22.pmtiles,22
+Fenton,1908,fenton_1908_22.pmtiles,22
+Flint,1859,flint_1859_20.pmtiles,20
+Flint,1873,flint_1873_20.pmtiles,20
+Flint,1886,flint_1886_22.pmtiles,22
+Flint,1902,flint_1902_22.pmtiles,22
+Flint,1909,flint_1909_22.pmtiles,22
+Flint,1914,flint_1914_22.pmtiles,22
+Flushing,1859,flushing_1859_20.pmtiles,20
+Flushing,1873,flushing_1873_20.pmtiles,20
+Flushing,1893,flushing_1893_22.pmtiles,22
+Flushing,1900,flushing_1900_22.pmtiles,22
+Flushing,1910,flushing_1910_22.pmtiles,22
+Flushing,1920,flushing_1920_22.pmtiles,22
+Flushing,1934,flushing_1934_22.pmtiles,22
+Gaines,1873,gaines_1873_20.pmtiles,20
+Genesee,1859,genesee_1859_20.pmtiles,20
+Genesee,1873,genesee_1873_20.pmtiles,20
+Gibsonville,1859,gibsonville_1859_20.pmtiles,20
+Gibsonville,1873,gibsonville_1873_20.pmtiles,20
+Goodrich,1859,goodrich_1859_20.pmtiles,20
+Goodrich,1873,goodrich_1873_20.pmtiles,20
+Grand Blanc,1859,grand_blanc_1859_20.pmtiles,20
+Grand Blanc,1873,grand_blanc_1873_20.pmtiles,20
+Henpeck,1873,henpeck_1873_20.pmtiles,20
+Linden,1859,linden_1859_20.pmtiles,20
+Linden,1873,linden_1873_20.pmtiles,20
+Linden,1893,linden_1893_22.pmtiles,22
+Linden,1900,linden_1900_22.pmtiles,22
+Linden,1908,linden_1908_22.pmtiles,22
+Mount Morris,1873,mount_morris_1873_20.pmtiles,20
+Mount Morris,1884,mount_morris_1884_22.pmtiles,22
+Mount Morris,1893,mount_morris_1893_22.pmtiles,22
+Mount Morris,1900,mount_morris_1900_22.pmtiles,22
+Mount Morris,1910,mount_morris_1910_22.pmtiles,22
+Mount Pleasant,1873,mount_pleasant_1873_20.pmtiles,20
+North Linden,1859,north_linden_1859_20.pmtiles,20
+North Linden,1873,north_linden_1873_20.pmtiles,20
+Otisville,1873,otisville_1873_20.pmtiles,20
+Pine Run (Vienna),1859,pine_run_1859_20.pmtiles,20
+Pine Run (Vienna),1873,pine_run_1873_20.pmtiles,20
+Richfield,1873,richfield_1873_20.pmtiles,20
+Richfield Center,1873,richfield_center_1873_20.pmtiles,20
+Whitesburg,1859,whitesburg_1859_20.pmtiles,20
+Whitesburg,1873,whitesburg_1873_20.pmtiles,20

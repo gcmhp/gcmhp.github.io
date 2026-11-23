@@ -70,6 +70,9 @@ var map = L.map('map', {
   maxZoom: maxZoomSetting
 });
 
+map.createPane('historicalMaps');
+map.getPane('historicalMaps').style.zIndex = 350;
+
 //
 //
 // In this section we manage the different aspects of controlling the maps.
@@ -204,7 +207,7 @@ function setupDraggable() {
    * Take data about a certain city and year, creating a box in the appropriate bucket.
    */
   function createLayerTile(options) {
-    const { id, city, year = '', file = '', zoom = '', displayName } = options;
+    const { id, city, year = '', file = '', zoom = '', type = '', attribution = '', displayName } = options;
 
     // Create the base element for the entry. Attach some basic metadata.
     const box = document.createElement('div');
@@ -214,6 +217,8 @@ function setupDraggable() {
     box.dataset.year = year;
     box.dataset.file = file;
     box.dataset.zoom = zoom;
+    box.dataset.type = type;
+    box.dataset.attribution = attribution;
     box.dataset.opacity = '100';
 
     // On the left hand side of the box...
@@ -283,7 +288,7 @@ function setupDraggable() {
       } else {
         commonDisplayBucket.appendChild(box);
         syncTileState(box);
-        updateDisplayData(box.dataset.file, "add", box.dataset.id, box.dataset.zoom);
+        updateDisplayData(box, "add", box.dataset.id);
       }
     });
 
@@ -346,8 +351,20 @@ function setupDraggable() {
 
   // We create the general category first so it's displayed at the top.
   const generalItems = [
-    { id: 'general_satellite', city: 'General', displayName: 'Satellite', file: 'satellite'},
-    { id: 'general_street_map', city: 'General', displayName: 'Street Map', file: 'street_map' }
+    { id: 'general_street_map', city: 'General', displayName: 'Street Map', type: "xyz", zoom: 19, file: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png', attribution: '© OpenStreetMap Contributors' },
+    { id: 'general_satellite_1998', city: 'General', displayName: 'Satellite (1998)', type: "esri", file: 'https://imagery.michigan.gov/server/rest/services/Michigan_NAPP_1998/ImageServer', attribution: '© State of Michigan, Department of Technology, Management & Budget (DTMB), Center for Shared Solutions — MiSAIL aerial imagery.' },
+    { id: 'general_satellite_2005', city: 'General', displayName: 'Satellite (2005)', type: "esri", file: 'https://imagery.michigan.gov/server/rest/services/Michigan_NAIP_2005/ImageServer', attribution: '© State of Michigan, Department of Technology, Management & Budget (DTMB), Center for Shared Solutions — MiSAIL aerial imagery.' },
+    { id: 'general_satellite_2006', city: 'General', displayName: 'Satellite (2006)', type: "esri", file: 'https://imagery.michigan.gov/server/rest/services/Michigan_NAIP_2006/ImageServer', attribution: '© State of Michigan, Department of Technology, Management & Budget (DTMB), Center for Shared Solutions — MiSAIL aerial imagery.' },
+    { id: 'general_satellite_2009', city: 'General', displayName: 'Satellite (2009)', type: "esri", file: 'https://imagery.michigan.gov/server/rest/services/Michigan_NAIP_2009/ImageServer', attribution: '© State of Michigan, Department of Technology, Management & Budget (DTMB), Center for Shared Solutions — MiSAIL aerial imagery.' },
+    { id: 'general_satellite_2010', city: 'General', displayName: 'Satellite (2010)', type: "esri", file: 'https://imagery.michigan.gov/server/rest/services/Michigan_NAIP_2010/ImageServer', attribution: '© State of Michigan, Department of Technology, Management & Budget (DTMB), Center for Shared Solutions — MiSAIL aerial imagery.' },
+    { id: 'general_satellite_2012', city: 'General', displayName: 'Satellite (2012)', type: "esri", file: 'https://imagery.michigan.gov/server/rest/services/Michigan_NAIP_2012/ImageServer', attribution: '© State of Michigan, Department of Technology, Management & Budget (DTMB), Center for Shared Solutions — MiSAIL aerial imagery.' },
+    { id: 'general_satellite_2014', city: 'General', displayName: 'Satellite (2014)', type: "esri", file: 'https://imagery.michigan.gov/server/rest/services/Michigan_NAIP_2014/ImageServer', attribution: '© State of Michigan, Department of Technology, Management & Budget (DTMB), Center for Shared Solutions — MiSAIL aerial imagery.' },
+    { id: 'general_satellite_2016', city: 'General', displayName: 'Satellite (2016)', type: "esri", file: 'https://imagery.michigan.gov/server/rest/services/Michigan_NAIP_2016/ImageServer', attribution: '© State of Michigan, Department of Technology, Management & Budget (DTMB), Center for Shared Solutions — MiSAIL aerial imagery.' },
+    { id: 'general_satellite_2018', city: 'General', displayName: 'Satellite (2018)', type: "esri", file: 'https://imagery.michigan.gov/server/rest/services/Michigan_NAIP_2018/ImageServer', attribution: '© State of Michigan, Department of Technology, Management & Budget (DTMB), Center for Shared Solutions — MiSAIL aerial imagery.' },
+    { id: 'general_satellite_2020', city: 'General', displayName: 'Satellite (2020)', type: "esri", file: 'https://imagery.michigan.gov/server/rest/services/Michigan_NAIP_2020/ImageServer', attribution: '© State of Michigan, Department of Technology, Management & Budget (DTMB), Center for Shared Solutions — MiSAIL aerial imagery.' },
+    { id: 'general_satellite_2022', city: 'General', displayName: 'Satellite (2022)', type: "esri", file: 'https://imagery.michigan.gov/server/rest/services/Michigan_NAIP_2022/ImageServer', attribution: '© State of Michigan, Department of Technology, Management & Budget (DTMB), Center for Shared Solutions — MiSAIL aerial imagery.' },
+    { id: 'general_satellite_2024', city: 'General', displayName: 'Satellite (2024)', type: "esri", file: 'https://imagery.michigan.gov/server/rest/services/Michigan_imagery_2024/ImageServer', attribution: '© State of Michigan, Department of Technology, Management & Budget (DTMB), Center for Shared Solutions — MiSAIL aerial imagery.' },
+    { id: 'general_satellite_modern', city: 'General', displayName: 'Satellite (Modern)', type: "xyz", zoom: 19, file: 'https://imagery.michigan.gov/server/rest/services/Michigan_imagery_public/MapServer/tile/{z}/{y}/{x}', attribution: '© State of Michigan, Department of Technology, Management & Budget (DTMB), Center for Shared Solutions — MiSAIL aerial imagery.' }
   ];
   createBucketCard('General', generalItems);
 
@@ -359,7 +376,8 @@ function setupDraggable() {
       year: year,
       file: yearData?.link || '',
       zoom: yearData?.zoom || '',
-      displayName: `${cityName} (${year})`
+      displayName: `${cityName} (${year})`,
+      type: "pmtiles"
     }));
 
     createBucketCard(cityName, cityItems);
@@ -370,13 +388,37 @@ function setupDraggable() {
 
   let advancedLayerCache = [];
 
+  let paneCounter = 0;
+
+  /*
+   * Update the z-index of every active historical layer.
+   * The first item in the draggable bucket is the topmost layer.
+   */
+  function refreshLayerOrder() {
+    const count = advancedLayerCache.length;
+
+    advancedLayerCache.forEach((entry, index) => {
+      const pane = map.getPane(entry.paneName);
+
+      if (!pane) return;
+
+      const zIndex = Math.round(
+        201 + ((count - index) / (count + 1)) * 198
+      );
+
+      pane.style.zIndex = zIndex;
+    });
+  }
+
   /*
    * This function is called when layers move around so that we can actually do stuff!
    * Here we adjust different map content settings.
    * This is actually much simpler than the "simple" control method because maps are verbosely added and removed,
    * meaning that we don't have to build a smart cache system to add and remove content!
    */
-  function updateDisplayData(data, task, item, zoom) {
+  function updateDisplayData(data, task, item) {
+
+    console.log("running " + task)
     // Depending on which task is being performed...
     // Note: Task is always a string, but does not have to be present. Attached are its options:
     // add - We are adding a layer to the display.
@@ -386,39 +428,61 @@ function setupDraggable() {
     switch(task) {
       // If we're adding a map...
       case "add":
-        // Determine if it's a hard-coded present...
-        switch(data) {
-          // If they're using the hardcoded open street map, add it and add the attribution.
-          case "street_map":
-            let streetMapLayer = L.tileLayer(
-              'https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-              attribution: "© OpenStreetMap Contributors",
-              maxNativeZoom: 19,
-              maxZoom: maxZoomSetting
+        const paneName = `historicalLayer${++paneCounter}`;
+        map.createPane(paneName);
+
+        /*
+         * Really interesting bug that I thought I would document!
+         * By default, esri layers are added to a separate pane than what tile layers and PMTiles are.
+         * This esri pane is given a priority, meaning it cannot ever have other panes cover it if it is enabled.
+         * Thus, we have to manually add everything to a single pane.
+         */
+        // Determine what type of map we're adding.
+        switch (data.dataset.type) {
+          case "esri":
+            let esriLayer = L.esri.imageMapLayer({
+              url: data.dataset.file,
+              attribution: data.dataset.attribution,
+              pane: paneName
             }).addTo(map);
-            advancedLayerCache.push({id: item, layer: streetMapLayer});
-            streetMapLayer.bringToBack();
+            advancedLayerCache.push({
+              id: item,
+              layer: esriLayer,
+              paneName: paneName
+            });
+            refreshLayerOrder();
+            //esriLayer.bringToBack();
             break;
-          // If they're using the hardcoded satellite map, add it and add the attribution.
-          case "satellite":
-            let satelliteLayer = L.tileLayer(
-              'https://imagery.michigan.gov/server/rest/services/Michigan_imagery_public/MapServer/tile/{z}/{y}/{x}', {
-              attribution: "© State of Michigan, Department of Technology, Management & Budget (DTMB), Center for Shared Solutions — MiSAIL aerial imagery.",
-              maxNativeZoom: 19,
-              maxZoom: maxZoomSetting
-            }).addTo(map);
-            advancedLayerCache.push({id: item, layer: satelliteLayer});
-            satelliteLayer.bringToBack();
-            break;
-          // Otherwise, load the appropriate file from the system!
-          default:
-            const p = new pmtiles.PMTiles("../assets/maps/" + data);
+          case "pmtiles":
+            const p = new pmtiles.PMTiles("../assets/maps/" + data.dataset.file);
             let addedLayer = pmtiles.leafletRasterLayer(p, {
-              maxNativeZoom: Number(zoom),
-              maxZoom: maxZoomSetting
+              maxNativeZoom: Number(data.dataset.zoom),
+              maxZoom: maxZoomSetting,
+              pane: paneName
             }).addTo(map);
-            advancedLayerCache.push({id: item, layer: addedLayer});
-            addedLayer.bringToBack();
+            advancedLayerCache.push({
+              id: item,
+              layer: addedLayer,
+              paneName: paneName
+            });
+            refreshLayerOrder();
+            //addedLayer.bringToBack();
+            break;
+          case "xyz":
+            let streetMapLayer = L.tileLayer(
+              data.dataset.file, {
+              attribution: data.dataset.attribution,
+              maxNativeZoom: Number(data.dataset.zoom),
+              maxZoom: maxZoomSetting,
+              pane: paneName
+            }).addTo(map);
+            advancedLayerCache.push({
+              id: item,
+              layer: streetMapLayer,
+              paneName: paneName
+            });
+            refreshLayerOrder();
+            //streetMapLayer.bringToBack();
             break;
         }
         break;
@@ -426,10 +490,13 @@ function setupDraggable() {
       case "remove":
         // First, find where the file is located in the cache.
         const index = advancedLayerCache.findIndex(entry => entry.id === item);
+        if (index === -1) return;
         // Replace it with nothing, removing it from the cache.
         const [removedEntry] = advancedLayerCache.splice(index, 1);
         // Remove it from the map.
         map.removeLayer(removedEntry.layer);
+        // Finally, readjust all layers.
+        refreshLayerOrder();
         break;
       // If we're adjusting a map's opacity...
       case "opacity":
@@ -444,11 +511,8 @@ function setupDraggable() {
         const [movingEntry] = advancedLayerCache.splice(data.oldIndex, 1);
         // Add the item that was moved to its new spot in the cache.
         advancedLayerCache.splice(data.newIndex, 0, movingEntry);
-        // Cycle through all cache contents from to back, sending them to the back of the layers.
-        // This effectively just sorts the layers again.
-        advancedLayerCache.forEach((item) => {
-          item.layer.bringToBack();
-        });
+        // Adjust the layer orders.
+        refreshLayerOrder();
         break;
     }
   }
