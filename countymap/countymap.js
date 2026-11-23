@@ -585,6 +585,9 @@ async function loadSimple() {
 function simpleMapUpdate() {
   let removeLayers = [];
 
+  // Reset the list of active maps every time the year updates.
+  document.getElementById("activeMapsList").innerHTML = "";
+
   /*
    * Given a certain area, find what map file is closest to the current selected year.
    */
@@ -621,6 +624,16 @@ function simpleMapUpdate() {
     const countyFile = countyData?.link;
     const countyZoom = Number(countyData?.zoom);
 
+    // Add the chosen county year to the list of active maps.
+    if (countyData && activeMapsList) {
+      const countyYear = Object.keys(cityYearMap.County)
+        .find(year => cityYearMap.County[year] === countyData);
+
+      const li = document.createElement("li");
+      li.textContent = `County (${countyYear})`;
+      activeMapsList.appendChild(li);
+    }
+
     if (countyFile) {
       // If the map has changed (prevent duplicate loadings, reduce bandwidth consumption)...
       if (!simpleCache["County"] || simpleCache["County"] !== countyFile) {
@@ -655,6 +668,16 @@ function simpleMapUpdate() {
     const cityData = getClosestFile(cityYearMap[area]);
     const cityFile = cityData?.link;
     const cityZoom = Number(cityData?.zoom);
+
+    // Add the city map to the list of active maps.
+    if (cityData && activeMapsList) {
+      const cityYear = Object.keys(cityYearMap[area])
+        .find(year => cityYearMap[area][year] === cityData);
+
+      const li = document.createElement("li");
+      li.textContent = `${area} (${cityYear})`;
+      activeMapsList.appendChild(li);
+    }
 
     // If there exists an appropriate city map...
     if (cityFile) {
