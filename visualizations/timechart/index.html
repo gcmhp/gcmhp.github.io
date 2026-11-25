@@ -1,14 +1,6 @@
 <!doctype html>
 <html lang="en">
 
-    <head>
-        <!-- Load general metadata into the site. -->
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <link rel="icon" type="image/x-icon" href="../../assets/favicon.ico">
-        <title>Genesee County Healthcare Time Chart</title>
-    </head>
-
     <!-- Import our scripts. -->
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1/dist/js/bootstrap.min.js"></script>
@@ -20,44 +12,26 @@
     <link rel="stylesheet" href="style.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1/dist/css/bootstrap.min.css" rel="stylesheet"  crossorigin="anonymous">
 
+    <!--
+    ---
+    --- Generate head content.
+    ---
+    -->
 
+    <head>
+        <!-- Load general metadata into the site. -->
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="icon" type="image/x-icon" href="../../assets/favicon.ico">
+        <title>Genesee County Healthcare Time Chart</title>
+    </head>
+
+    <!-- Include script for automatic header/footer generation -->
+    <script src="/headerfooter.js" defer></script>
+
+    <!-- This will be overridden with our header -->
     <header>
-        <!-- Prepare the navigation bar. -->
-        <nav class="navbar-expand navbar-dark bg-dark" aria-label="header">
-            <div class="container-fluid">
-                <!-- Add the title. -->
-                <a href="#" class="navbar-brand d-flex align-items-center">
-                    <strong>Genesee County Medical History Project</strong>
-                </a>
-
-                <!-- Add all the page navigation layer. -->
-                <ul class="navbar-nav me-auto mb-2 mb-sm-0">
-                    <!-- Add the link to the home page. -->
-                    <li class="nav-item">
-                        <a class="nav-link active" aria-current="page" href="../..">Home</a>
-                    </li>
-
-                    <!-- Add the link to the about page. -->
-                    <li class="nav-item">
-                        <a class="nav-link active" aria-current="page" href="../../about/">About</a>
-                    </li>
-
-                    <!-- Add the visualizations drop down. -->
-                    <li class="nav-item dropdown">
-                        <a class="nav-link active dropdown-toggle" href="#" id="visualizations" data-bs-toggle="dropdown" aria-expanded="false">Visualizations</a>
-                        <ul class="dropdown-menu" aria-labelledby="visualizations">
-                            <li><a class="dropdown-item" href="../map/">Map</a></li>
-                            <li><a class="dropdown-item" href="">Time Chart</a></li>
-                        </ul>
-                    </li>
-
-                    <!-- Add the link to the source code. -->
-                    <li class="nav-item">
-                        <a class="nav-link active" aria-current="page" href="https://github.com/gcmhp/gcmhp.github.io">Source Code</a>
-                    </li>
-                </ul>
-            </div>
-        </nav>
+        <div id="header"></div>
     </header>
 
     <main>
@@ -156,5 +130,7 @@
                 </div>
             </div>
         </section>
+
+        <div id="footer"></div>
     </footer>
 </html>
