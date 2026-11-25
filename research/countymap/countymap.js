@@ -19,11 +19,12 @@ let maxZoomSetting = 22;
 //
 
 let cityYearMap = {};
-const control = document.getElementById("controlCheckbox");
+const control = document.getElementById("controlButton");
+const controlMessage = document.getElementById("selectedMode");
 
 // The most important thing for us to do is to know what maps are available, so that's the first thing we'll load.
 // Everything else is dependent on this completing.
-fetch('../assets/maps/map_context.csv')
+fetch('/assets/maps/map_context.csv')
   .then(res => res.text())
   .then(csv => {
     Papa.parse(csv, {
@@ -87,9 +88,11 @@ var simple = true;
  */
 function updateControls() {
     if (simple) {
+        controlMessage.innerHTML = 'Selected Mode: Advanced';
         loadAdvanced();
         simple = false;
     } else {
+        controlMessage.innerHTML = 'Selected Mode: Simple';
         loadSimple();
         simple = true;
     }
@@ -453,7 +456,7 @@ function setupDraggable() {
             //esriLayer.bringToBack();
             break;
           case "pmtiles":
-            const p = new pmtiles.PMTiles("../assets/maps/" + data.dataset.file);
+            const p = new pmtiles.PMTiles("../../assets/maps/" + data.dataset.file);
             let addedLayer = pmtiles.leafletRasterLayer(p, {
               maxNativeZoom: Number(data.dataset.zoom),
               maxZoom: maxZoomSetting,
@@ -637,7 +640,7 @@ function simpleMapUpdate() {
       // If the map has changed (prevent duplicate loadings, reduce bandwidth consumption)...
       if (!simpleCache["County"] || simpleCache["County"] !== countyFile) {
         // Load the new map onto a layer.
-        const p = new pmtiles.PMTiles("../assets/maps/" + countyFile);
+        const p = new pmtiles.PMTiles("../../assets/maps/" + countyFile);
         let layer = pmtiles.leafletRasterLayer(p, {
           maxNativeZoom: Number(countyZoom),
           maxZoom: maxZoomSetting
@@ -683,7 +686,7 @@ function simpleMapUpdate() {
       // If the map has changed (prevent duplicate loadings, reduce bandwidth consumption)...
       if (!simpleCache[area] || simpleCache[area] !== cityFile) {
         // Load the new map onto a layer.
-        const p = new pmtiles.PMTiles("../assets/maps/" + cityFile);
+        const p = new pmtiles.PMTiles("../../assets/maps/" + cityFile);
         let layer = pmtiles.leafletRasterLayer(p, {
           maxNativeZoom: Number(cityZoom),
           maxZoom: maxZoomSetting

@@ -43,6 +43,7 @@
 /* The container */
 .cbox {
   display: block;
+  gap: 10px;
   position: relative;
   padding-left: 35px;
   margin-bottom: 12px;
